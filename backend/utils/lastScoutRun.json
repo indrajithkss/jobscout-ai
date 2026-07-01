@@ -1,0 +1,19 @@
+{
+  "jobsFound": 9,
+  "highMatches": 8,
+  "averageScore": 88,
+  "realJobsFound": 46,
+  "generatedJobsFound": 0,
+  "indiaJobsFound": 9,
+  "globalJobsFiltered": 37,
+  "countryFilter": {
+    "active": "India",
+    "rejected": 37
+  },
+  "scoutedAt": "2026-07-01T09:57:48.686Z",
+  "sourceBreakdown": {
+    "remotive": 39,
+    "arbeitnow": 16,
+    "themuse": 0
+  }
+}

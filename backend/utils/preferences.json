@@ -1,0 +1,19 @@
+{
+  "id": "ceb57a49-1a06-4159-a6ab-ccedf4e6b1af",
+  "target_roles": [
+    "full stack developer",
+    "ui/ux designer",
+    "data analyst"
+  ],
+  "preferred_locations": [
+    "Bangalore",
+    "Remote",
+    "hybrid"
+  ],
+  "remote_allowed": true,
+  "preferred_country": "India",
+  "minimum_match_score": 95,
+  "jobs_age_days": 7,
+  "max_daily_jobs": 40,
+  "created_at": "2026-06-22T10:40:04.435983"
+}
