@@ -202,6 +202,4 @@ VITE_API_URL=http://localhost:5000/api
 **Indrajith KS**
 
 
-## 📄 License
 
-This project is licensed under the **MIT License**.
