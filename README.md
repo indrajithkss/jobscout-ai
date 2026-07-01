@@ -170,18 +170,7 @@ VITE_API_URL=http://localhost:5000/api
 
 ---
 
-# 📸 Screenshots
 
-> Add screenshots here after deployment.
-
-- Dashboard
-- AI Copilot
-- Career Hub
-- Analytics
-- Resume Upload
-- Job Advisor
-
----
 
 # 🚧 Future Improvements
 
