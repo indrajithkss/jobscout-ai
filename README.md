@@ -212,19 +212,6 @@ VITE_API_URL=http://localhost:5000/api
 
 **Indrajith KS**
 
-🎓 MCA Graduate
-
-- 🌐 GitHub: https://github.com/indrajithkss
-- 💼 LinkedIn: *(Add your LinkedIn URL)*
-- 🌍 Portfolio: *(Add your Portfolio URL)*
-
----
-
-## ⭐ Support
-
-If you found this project useful, please consider giving it a ⭐ on GitHub.
-
----
 
 ## 📄 License
 
