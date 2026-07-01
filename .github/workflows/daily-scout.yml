@@ -1,0 +1,23 @@
+name: Daily JobScout Scan
+
+on:
+  schedule:
+    # 05:00 AM IST = 23:30 UTC (previous day)
+    - cron: "30 23 * * *"
+
+  workflow_dispatch:
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger JobScout Scan
+        run: |
+          curl -X POST \
+          "${{ secrets.BACKEND_URL }}/api/scout/run"
+
+      - name: Fetch Daily Summary
+        run: |
+          curl \
+          "${{ secrets.BACKEND_URL }}/api/jobs/daily-summary"
