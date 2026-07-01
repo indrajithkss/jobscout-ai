@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import UserMessage from "./UserMessage";
 import AIMessage from "./AIMessage";
-import { Sparkles } from "lucide-react";
+import { Bot } from "lucide-react";
 
-export default function AIChat({ history, loading, onJobClick }) {
+export default function AIChat({ history, loading, onJobClick, sendMessage }) {
   const bottomRef = useRef(null);
 
-  // Auto-scroll to the newest message block when list updates
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history, loading]);
@@ -18,29 +17,32 @@ export default function AIChat({ history, loading, onJobClick }) {
           return <UserMessage key={msg.id} message={msg} />;
         }
         return (
-          <AIMessage 
-            key={msg.id} 
-            message={msg} 
+          <AIMessage
+            key={msg.id}
+            message={msg}
             onJobClick={onJobClick}
+            sendMessage={sendMessage}
           />
         );
       })}
 
-      {/* Simulated Typing Indicator load bubbles */}
+      {/* Autonomous Typing Indicator */}
       {loading && (
         <div className="flex gap-3 w-full items-start justify-start">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 border border-border-custom text-primary-blue shrink-0 shadow-xs">
-            <Sparkles className="w-4.5 h-4.5" />
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-900/60 to-indigo-900/60 border border-primary-blue/30 text-primary-blue shrink-0 shadow-xs">
+            <Bot className="w-4.5 h-4.5 animate-pulse" />
           </div>
-          <div className="bg-slate-900/40 border border-border-custom/40 px-4 py-2.5 rounded-2xl rounded-tl-none text-text-sec shadow-xs flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-text-sec rounded-full animate-bounce [animation-delay:0.1s]"></span>
-            <span className="w-1.5 h-1.5 bg-text-sec rounded-full animate-bounce [animation-delay:0.2s]"></span>
-            <span className="w-1.5 h-1.5 bg-text-sec rounded-full animate-bounce [animation-delay:0.3s]"></span>
+          <div className="bg-blue-950/20 border border-primary-blue/15 px-4 py-2.5 rounded-2xl rounded-tl-none shadow-xs flex flex-col gap-1.5">
+            <span className="text-[11px] font-semibold text-primary-blue">Scout is working...</span>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-primary-blue/60 rounded-full animate-bounce [animation-delay:0.1s]"></span>
+              <span className="w-1.5 h-1.5 bg-primary-blue/60 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+              <span className="w-1.5 h-1.5 bg-primary-blue/60 rounded-full animate-bounce [animation-delay:0.3s]"></span>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Auto-scroll anchor */}
       <div ref={bottomRef} />
     </div>
   );

@@ -1,113 +1,131 @@
 import React, { createContext, useContext, useState } from "react";
-import { aiService } from "../services/aiService";
+import { agentService } from "../services/aiService";
 import { ROUTES } from "../constants/routes";
 
 const AIContext = createContext();
 
+const WELCOME_MESSAGE = {
+  id: "welcome",
+  sender: "ai",
+  isAgent: true,
+  type: "text",
+  text: `Hello! I'm **Scout** — your autonomous AI career agent. I don't just talk, I take action.
+
+Here's what I can do for you:
+- **"What should I do today?"** → Full daily briefing with top picks
+- **"Find me remote React jobs"** → Search & surface matched roles
+- **"Draft a cover letter for Razorpay"** → Write personalized letter, save to your profile
+- **"Show my skill gap"** → Analyze missing skills across your top matches
+- **"Who should I follow up with?"** → Review your application pipeline
+- **"Prep me for a Node.js interview"** → Generate questions + model answers
+
+What would you like to tackle first?`,
+  actions: [],
+};
+
 export function AIProvider({ children }) {
-  const [chatHistory, setChatHistory] = useState([
-    {
-      id: "welcome",
-      sender: "ai",
-      type: "text",
-      text: `Hello Indrajith! As your **AI Career Copilot**, I am here to help you secure your next dream role. 
-
-You can ask me to:
-- **Find jobs**: "Show remote MERN jobs matched to my profile"
-- **Analyze skill gaps**: "Analyze my skill gap against Senior React roles"
-- **Prepare for interviews**: "Generate interview prep questions for Next.js"
-- **Audit specific roles**: Click "Ask AI About This Job" in any job details view to analyze its career impact.
-
-What would you like to explore today?`
-    }
-  ]);
+  const [chatHistory, setChatHistory] = useState([WELCOME_MESSAGE]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [voiceMode, setVoiceMode] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
+  const [agentThinking, setAgentThinking] = useState("");
 
-  const candidateProfile = {
-    name: "Indrajith KS",
-    role: "MERN Developer",
-    skills: ["React", "Express.js", "Node.js", "MongoDB", "JavaScript", "HTML", "CSS", "Tailwind CSS", "Supabase", "SQL"]
-  };
-
-  const handleSendMessage = async (text) => {
+  const handleSendMessage = async (text, contextJob = null) => {
     if (!text.trim()) return;
 
+    // Add user message
     const userMsg = {
       id: `user-${Date.now()}`,
       sender: "user",
       type: "text",
-      text
+      text,
     };
-
-    setChatHistory(prev => [...prev, userMsg]);
+    setChatHistory((prev) => [...prev, userMsg]);
     setChatLoading(true);
+    setAgentThinking("Thinking...");
+
+    // Build history to send (last 10 messages for context, keeping full structure for turn memory)
+    const historyToSend = chatHistory
+      .filter((m) => m.sender === "user" || m.sender === "ai")
+      .slice(-10);
+
+    // If a job is focused, prepend context
+    let enrichedMessage = text;
+    if (contextJob) {
+      enrichedMessage = `[Context: Currently viewing job "${contextJob.title}" at ${contextJob.company || "unknown"} — Match Score: ${contextJob.matchScore}%, Job ID: ${contextJob.id}]\n\n${text}`;
+    } else if (selectedJob) {
+      enrichedMessage = `[Context: Currently viewing job "${selectedJob.title}" at ${selectedJob.company || "unknown"} — Match Score: ${selectedJob.matchScore}%, Job ID: ${selectedJob.id}]\n\n${text}`;
+    }
 
     try {
-      const reply = await aiService.sendMessage(text, chatHistory);
-      setChatHistory(prev => [...prev, reply]);
+      setAgentThinking("Running tools...");
+      const result = await agentService.sendMessage(enrichedMessage, historyToSend);
+
+      const aiMsg = {
+        id: `ai-${Date.now()}`,
+        sender: "ai",
+        isAgent: true,
+        type: "text",
+        text: result.reply,
+        actions: result.actions || [],
+        suggestedActions: result.suggestedActions || [],
+      };
+      setChatHistory((prev) => [...prev, aiMsg]);
     } catch (err) {
-      console.error("Failed to generate AI response", err);
-      setChatHistory(prev => [
+      console.error("Agent error:", err);
+      setChatHistory((prev) => [
         ...prev,
         {
           id: `ai-err-${Date.now()}`,
           sender: "ai",
+          isAgent: true,
           type: "text",
-          text: "I encountered an error trying to process that prompt. Please try again."
-        }
+          text: err.message || "Scout encountered an error. Please try again.",
+          actions: [],
+        },
       ]);
     } finally {
       setChatLoading(false);
+      setAgentThinking("");
     }
   };
 
   const askAIAboutJob = async (job, navigate) => {
     setSelectedJob(job);
-    const promptText = `Analyze this role:\n**${job.title}** at **${job.company}**\nLocation: ${job.location}\nMatch Score: ${job.matchScore}%`;
-    
-    const userMsg = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      type: "text",
-      text: promptText
-    };
-
-    setChatHistory(prev => [...prev, userMsg]);
-    setChatLoading(true);
-    
-    // Redirect users to the flagship /copilot view
     navigate(ROUTES.COPILOT);
+    await handleSendMessage(
+      `Analyze this job and tell me if I should apply: "${job.title}"${job.company ? ` at ${job.company}` : ""}. What are my chances, what's missing, and what's your recommendation?`,
+      job
+    );
+  };
 
-    try {
-      const reply = await aiService.sendMessage(promptText, chatHistory);
-      setChatHistory(prev => [...prev, reply]);
-    } catch (err) {
-      console.error("Failed to analyze job context", err);
-      setChatHistory(prev => [
-        ...prev,
-        {
-          id: `ai-err-${Date.now()}`,
-          sender: "ai",
-          type: "text",
-          text: "I encountered an error analyzing that job. Please try again."
-        }
-      ]);
-    } finally {
-      setChatLoading(false);
-    }
+  const askAISkillGap = async (job, navigate) => {
+    setSelectedJob(job);
+    navigate(ROUTES.COPILOT);
+    await handleSendMessage(
+      `Show me my skill gap for this role: "${job.title}"${job.company ? ` at ${job.company}` : ""}`,
+      job
+    );
+  };
+
+  const askAIInterviewPrep = async (job, navigate) => {
+    setSelectedJob(job);
+    navigate(ROUTES.COPILOT);
+    await handleSendMessage(
+      `Generate interview prep questions for "${job.title}"${job.company ? ` at ${job.company}` : ""}`,
+      job
+    );
   };
 
   const clearHistory = () => {
     setChatHistory([
       {
-        id: "welcome-reset",
-        sender: "ai",
-        type: "text",
-        text: "Conversation cleared. How can your career agent assist you now?"
-      }
+        ...WELCOME_MESSAGE,
+        id: `welcome-${Date.now()}`,
+        text: "Conversation cleared. Ready to help — what's your next move?",
+      },
     ]);
+    setSelectedJob(null);
   };
 
   return (
@@ -115,14 +133,16 @@ What would you like to explore today?`
       value={{
         chatHistory,
         selectedJob,
-        candidateProfile,
         voiceMode,
         chatLoading,
+        agentThinking,
         setSelectedJob,
         setVoiceMode,
         sendMessage: handleSendMessage,
         askAIAboutJob,
-        clearHistory
+        askAISkillGap,
+        askAIInterviewPrep,
+        clearHistory,
       }}
     >
       {children}

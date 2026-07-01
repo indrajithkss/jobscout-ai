@@ -44,16 +44,27 @@ export default function Layout() {
         </div>
 
         {/* Floating AI Career Orb */}
-        <button
-          type="button"
-          onClick={() => setCopilotOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-12 h-12 rounded-full bg-primary-blue hover:bg-blue-700 text-text-main shadow-lg shadow-blue-500/20 border border-primary-blue/30 cursor-pointer group transition-all duration-300 hover:scale-110 active:scale-95"
-          title="Open AI Copilot"
-        >
-          {/* Outer pulse indicator rings */}
-          <span className="absolute inset-0 rounded-full bg-primary-blue/20 animate-ping group-hover:animate-none opacity-60"></span>
-          <Sparkles className="w-5 h-5 relative z-10" />
-        </button>
+        <div className="fixed bottom-6 right-6 z-40">
+          <button
+            type="button"
+            onClick={() => setCopilotOpen(true)}
+            className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-text-main shadow-2xl shadow-blue-500/40 border border-white/10 cursor-pointer group transition-all duration-500 hover:scale-110 active:scale-95"
+            title="Open AI Copilot"
+          >
+            {/* Pulsing ring outer waves */}
+            <span className="absolute inset-0 rounded-full bg-blue-500/35 animate-ping opacity-60 group-hover:opacity-100 transition-opacity"></span>
+            <span className="absolute -inset-1 rounded-full bg-indigo-500/20 blur-xs animate-pulse"></span>
+            
+            {/* Sparkles icon with custom rotation on hover */}
+            <Sparkles className="w-6 h-6 relative z-10 text-white group-hover:rotate-12 transition-transform duration-300" />
+            
+            {/* Active Indicator Badge */}
+            <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5 z-20">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-bg"></span>
+            </span>
+          </button>
+        </div>
 
         {/* Copilot Drawer slide-over chat panel */}
         <CopilotDrawer isOpen={copilotOpen} onClose={() => setCopilotOpen(false)} />

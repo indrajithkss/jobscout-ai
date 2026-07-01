@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Bookmark, Star } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { jobsApi } from "../services/jobsApi";
 import JobCard from "../components/jobs/JobCard";
@@ -15,37 +15,39 @@ export default function SavedJobs() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let isMounted = true;
-    async function loadBookmarks() {
-      try {
-        setLoading(true);
-        const data = await jobsApi.getSavedJobs();
-        if (isMounted) {
-          setSavedJobs(data);
-        }
-      } catch (err) {
-        console.error("Failed to load saved jobs", err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
+  const loadBookmarks = async () => {
+    try {
+      setLoading(true);
+      const data = await jobsApi.getSavedJobs();
+      setSavedJobs(data);
+    } catch (err) {
+      console.error("Failed to load saved jobs", err);
+    } finally {
+      setLoading(false);
     }
-    loadBookmarks();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleSaveToggle = (jobId) => {
-    // Remove the job from the saved list immediately to provide reactive UI response
-    setSavedJobs(prevJobs => prevJobs.filter(job => job.id !== jobId));
   };
 
-  const handleViewJob = (job) => {
-    setSelectedJob(job);
-    setDrawerOpen(true);
+  useEffect(() => { loadBookmarks(); }, []);
+
+  const handleStatusChange = async (jobId, newStatus) => {
+    const job = savedJobs.find((j) => j.id === jobId);
+    if (!job) return;
+
+    if (newStatus !== "saved") {
+      setSavedJobs((prev) => prev.filter((j) => j.id !== jobId));
+      if (selectedJob?.id === jobId) setSelectedJob((prev) => ({ ...prev, status: newStatus }));
+    } else {
+      setSavedJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: newStatus } : j)));
+      if (selectedJob?.id === jobId) setSelectedJob((prev) => ({ ...prev, status: newStatus }));
+    }
+
+    try {
+      await jobsApi.updateJobStatus(jobId, newStatus);
+      if (newStatus !== "saved") setDrawerOpen(false);
+    } catch (err) {
+      console.error("Failed to update status on server", err);
+      loadBookmarks();
+    }
   };
 
   return (
@@ -53,19 +55,18 @@ export default function SavedJobs() {
       {/* Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-text-main tracking-tight">
-          Saved Opportunities
+          Saved Jobs
         </h1>
         <p className="text-xs sm:text-sm text-text-sec mt-1">
-          Keep track of positions you are interested in reviewing or applying for.
+          {loading
+            ? "Loading your saved jobs..."
+            : `${savedJobs.length} saved opportunit${savedJobs.length !== 1 ? "ies" : "y"}`}
         </p>
       </div>
 
-      {/* Main List */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <JobCardSkeleton key={i} />
-          ))}
+          {Array.from({ length: 3 }).map((_, i) => <JobCardSkeleton key={i} />)}
         </div>
       ) : savedJobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -73,8 +74,11 @@ export default function SavedJobs() {
             <JobCard
               key={job.id}
               job={job}
-              onViewClick={() => handleViewJob(job)}
-              onSaveToggle={() => handleSaveToggle(job.id)}
+              onViewClick={() => {
+                setSelectedJob(job);
+                setDrawerOpen(true);
+              }}
+              onStatusChange={handleStatusChange}
             />
           ))}
         </div>
@@ -82,17 +86,17 @@ export default function SavedJobs() {
         <EmptyState
           icon={Bookmark}
           title="No Saved Jobs"
-          description="You haven't bookmarked any opportunities yet. Explore the jobs index to find matches and save them here."
-          actionText="Find Jobs to Save"
+          description="You haven't bookmarked any opportunities yet. Browse jobs and save the ones you're interested in."
+          actionText="Browse Jobs"
           onActionClick={() => navigate(ROUTES.JOBS)}
         />
       )}
 
-      {/* Drawer Details */}
       <JobDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         job={selectedJob}
+        onStatusChange={handleStatusChange}
       />
     </div>
   );

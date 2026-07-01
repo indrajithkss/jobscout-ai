@@ -4,5 +4,7 @@ export const ROUTES = {
   COPILOT: "/copilot",
   SAVED: "/saved",
   APPLIED: "/applied",
-  ANALYTICS: "/analytics"
+  ANALYTICS: "/analytics",
+  PREFERENCES: "/preferences",
+  CAREER_HUB: "/career-hub"
 };

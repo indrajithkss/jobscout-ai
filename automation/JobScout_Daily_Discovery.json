@@ -1,0 +1,183 @@
+{
+  "name": "JobScout Daily Discovery",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 5 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger-node-id",
+      "name": "Schedule Trigger (05:00 AM Daily)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.BACKEND_URL || 'http://localhost:5000'}}/api/scout/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-scout-run-node-id",
+      "name": "HTTP Request (Scout Run API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "success-log-node-id",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.BACKEND_URL || 'http://localhost:5000'}}/api/jobs/daily-summary",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-daily-summary-node-id",
+      "name": "HTTP Request (Get Daily Summary)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [760, 300],
+      "notes": "Phase 7.0 – Fetches the AI Daily Career Brief after every successful scout run. Response JSON shape: { success, summary: { jobsFound, highMatches, resumeMatches, preferenceMatches, bothMatches, topJobs, topSkills, recommendation, generatedAt } }"
+    },
+    {
+      "parameters": {
+        "notice": "Phase 8.0 PLACEHOLDER — Resend Email Integration.\n\nWhen implementing, replace this noOp with a 'HTTP Request' node (or Resend native node if available) and POST to https://api.resend.com/emails.\n\nExpected payload from previous node ($json.summary):\n{\n  \"from\": \"JobScout AI <noreply@yourdomain.com>\",\n  \"to\": [\"your@email.com\"],\n  \"subject\": \"Your Daily Career Brief – {{$json.summary.jobsFound}} new jobs found\",\n  \"html\": \"<b>High Matches:</b> {{$json.summary.highMatches}}<br>...\"\n}\n\nAdd RESEND_API_KEY to backend .env and n8n credentials before connecting."
+      },
+      "id": "email-resend-placeholder",
+      "name": "Email Digest – Resend (Phase 8.0 Placeholder)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [980, 150]
+    },
+    {
+      "parameters": {
+        "notice": "Future implementation: Connect a Twilio or WhatsApp API node to deliver instant match notifications.\n\nInput: $json.summary from Get Daily Summary node.\nKey fields: summary.topJobs[0].title, summary.highMatches, summary.recommendation"
+      },
+      "id": "whatsapp-notification-hook",
+      "name": "WhatsApp Alerts Channel (Future)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [980, 250]
+    },
+    {
+      "parameters": {
+        "notice": "Future implementation: Connect a Slack Webhook node to post new matches into a Slack channel.\n\nInput: $json.summary from Get Daily Summary node.\nKey fields: summary.topJobs, summary.topSkills, summary.recommendation"
+      },
+      "id": "slack-notification-hook",
+      "name": "Slack Notifications Channel (Future)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [980, 350]
+    },
+    {
+      "parameters": {
+        "notice": "Future implementation: Connect a Push notification node (e.g. Pushbullet or Firebase) to send mobile alerts.\n\nInput: $json.summary from Get Daily Summary node."
+      },
+      "id": "push-notification-hook",
+      "name": "Push Notifications Channel (Future)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [980, 450]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (05:00 AM Daily)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (Scout Run API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (Scout Run API)": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Success": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (Get Daily Summary)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (Get Daily Summary)": {
+      "main": [
+        [
+          {
+            "node": "Email Digest – Resend (Phase 8.0 Placeholder)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WhatsApp Alerts Channel (Future)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Notifications Channel (Future)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push Notifications Channel (Future)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata"
+  },
+  "versionId": "jobscout-daily-discovery-v2",
+  "id": "jobscout-daily-discovery"
+}

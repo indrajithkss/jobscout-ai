@@ -16,15 +16,13 @@ export default function JobRecommendationCard({ jobs, onJobClick }) {
           <div className="flex gap-3 min-w-0">
             {/* Logo placeholder */}
             <div className="flex items-center justify-center w-8 h-8 rounded bg-slate-800 border border-slate-700 font-bold text-xs shrink-0 text-text-main uppercase">
-              {job.company.substring(0, 2)}
+              {job.title.split(/\s+/).map(w => w.charAt(0)).join("").substring(0, 2)}
             </div>
             <div className="min-w-0">
               <h4 className="font-semibold text-xs sm:text-sm text-text-main truncate group-hover:text-primary-blue transition-colors">
                 {job.title}
               </h4>
               <p className="text-[10px] text-text-sec flex items-center gap-1.5 mt-0.5">
-                <span>{job.company}</span>
-                <span>•</span>
                 <span>{job.location}</span>
               </p>
             </div>

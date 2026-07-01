@@ -6,18 +6,37 @@ import { ExternalLink } from "lucide-react";
 export default function JobTable({ jobs, onViewClick }) {
   const getStatusColor = (status) => {
     switch (status) {
-      case "Applied":
+      case "applied":
         return "blue";
-      case "Interview":
+      case "interview":
         return "yellow";
-      case "Offer":
+      case "offer":
         return "green";
-      case "Rejected":
+      case "rejected":
         return "red";
-      case "Saved":
+      case "saved":
         return "slate";
       default:
         return "slate";
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "new":
+        return "New";
+      case "saved":
+        return "Saved";
+      case "applied":
+        return "Applied";
+      case "interview":
+        return "Interviewing";
+      case "offer":
+        return "Offer";
+      case "rejected":
+        return "Rejected";
+      default:
+        return status || "New";
     }
   };
 
@@ -27,7 +46,6 @@ export default function JobTable({ jobs, onViewClick }) {
         <thead>
           <tr className="border-b border-border-custom text-text-sec text-[10px] font-bold uppercase tracking-wider">
             <th className="py-3 px-4">Job Title</th>
-            <th className="py-3 px-4">Company</th>
             <th className="py-3 px-4">Location</th>
             <th className="py-3 px-4">Match Score</th>
             <th className="py-3 px-4">Status</th>
@@ -44,10 +62,6 @@ export default function JobTable({ jobs, onViewClick }) {
               <td className="py-3.5 px-4 font-semibold text-text-main max-w-xs truncate">
                 {job.title}
               </td>
-              {/* Company */}
-              <td className="py-3.5 px-4 text-text-sec">
-                {job.company}
-              </td>
               {/* Location */}
               <td className="py-3.5 px-4 text-text-sec max-w-[120px] truncate">
                 {job.location}
@@ -59,7 +73,7 @@ export default function JobTable({ jobs, onViewClick }) {
               {/* Status */}
               <td className="py-3.5 px-4">
                 <Badge variant={getStatusColor(job.status)}>
-                  {job.status || "None"}
+                  {getStatusLabel(job.status)}
                 </Badge>
               </td>
               {/* Action Buttons */}

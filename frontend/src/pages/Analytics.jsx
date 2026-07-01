@@ -74,29 +74,25 @@ export default function Analytics() {
       {/* Analytics stats cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
-          title="Conversion Rate"
-          value={`${stats.interviewRate}%`}
-          icon={TrendingUp}
-          trend="High"
-          trendType="up"
-          description="application to interview conversion rate"
-        />
-        <StatCard
           title="Interview Rate"
           value={`${stats.interviewRate}%`}
-          icon={PhoneCall}
-          description="percentage of interview request calls"
+          icon={TrendingUp}
+          description="applications converted to interviews"
         />
         <StatCard
-          title="Offer Success"
+          title="Offer Rate"
           value={`${stats.offerRate}%`}
           icon={CheckCircle2}
-          trend="+3%"
-          trendType="up"
-          description="interview to offer conversion rate"
+          description="interviews converted to offers"
         />
         <StatCard
-          title="Active Opportunities"
+          title="Total Applied"
+          value={stats.applied || 0}
+          icon={PhoneCall}
+          description="total applications submitted"
+        />
+        <StatCard
+          title="Opportunities"
           value={stats.totalFound}
           icon={Compass}
           description="total opportunities scouted"

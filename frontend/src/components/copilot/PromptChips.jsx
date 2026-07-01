@@ -3,10 +3,9 @@ import React from "react";
 export default function PromptChips({ onChipClick }) {
   const prompts = [
     "Find React jobs in Bangalore",
-    "Show remote MERN jobs",
     "Prepare me for interviews",
-    "What skills do I need to learn?",
-    "Find fresher opportunities"
+    "Analyze my resume",
+    "Compare these jobs"
   ];
 
   return (
