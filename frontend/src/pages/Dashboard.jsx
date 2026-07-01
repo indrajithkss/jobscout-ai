@@ -20,6 +20,7 @@ import {
 import { jobsApi } from "../services/jobsApi";
 import { careerApi } from "../services/careerApi";
 import StatCard from "../components/dashboard/StatCard";
+import axios from "axios";
 import JobTable from "../components/jobs/JobTable";
 import JobDrawer from "../components/jobs/JobDrawer";
 import CareerBriefCard from "../components/dashboard/CareerBriefCard";
@@ -36,7 +37,17 @@ import { useAI } from "../context/AIContext";
 // Format ISO or date string to relative-friendly label
 function formatScanTime(dateStr) {
   if (!dateStr) return "Never";
-  const date = new Date(dateStr);
+  
+  let formattedStr = dateStr;
+  if (typeof dateStr === "string") {
+    // If the timestamp ends with a number (no timezone suffix like Z or +HH:MM),
+    // append 'Z' to treat it as UTC.
+    if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(dateStr)) {
+      formattedStr = dateStr.includes("T") ? `${dateStr}Z` : `${dateStr.replace(" ", "T")}Z`;
+    }
+  }
+
+  const date = new Date(formattedStr);
   const today = new Date();
   const isToday =
     date.getDate() === today.getDate() &&
@@ -100,6 +111,7 @@ export default function Dashboard() {
   const [scoutRunCount, setScoutRunCount] = useState(0);
   const [careerIntelligence, setCareerIntelligence] = useState(null);
   const [careerLoading, setCareerLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
 
   const { askAIAboutJob, askAISkillGap, askAIInterviewPrep, sendMessage } = useAI();
@@ -132,9 +144,21 @@ export default function Dashboard() {
     }
   };
 
+  const loadProfile = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/resume/profile`);
+      if (res.data?.success && res.data?.profile) {
+        setProfile(res.data.profile);
+      }
+    } catch (err) {
+      console.warn("Failed to load profile for dashboard:", err);
+    }
+  };
+
   useEffect(() => {
     loadDashboardData();
     loadCareerIntelligence();
+    loadProfile();
   }, []);
 
   const handleRunScout = async () => {
@@ -188,7 +212,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-text-main tracking-tight">
-            Welcome back 👋
+            Welcome back, {profile?.name || "Indrajith"} 👋
           </h1>
           <p className="text-xs sm:text-sm text-text-sec mt-1">
             Here's your job scout activity and AI match recommendations.

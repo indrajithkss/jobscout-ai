@@ -28,7 +28,7 @@ export default function Sidebar({ isOpen, onClose }) {
       .catch(() => {});
   }, []);
 
-  // Derive initials from name or fallback to "JS"
+  // Derive initials from name or fallback to "I"
   const initials = profile?.name
     ? profile.name
         .split(" ")
@@ -36,10 +36,10 @@ export default function Sidebar({ isOpen, onClose }) {
         .join("")
         .substring(0, 2)
         .toUpperCase()
-    : "JS";
+    : "I";
 
-  const displayName = profile?.name || "Your Profile";
-  const displayRole = profile?.currentTitle || profile?.targetRole || "Job Seeker";
+  const displayName = profile?.name || "Indrajith";
+  const displayRole = profile?.currentTitle || profile?.targetRole || "Full Stack Developer";
 
   const navItems = [
     { name: "Dashboard", path: ROUTES.DASHBOARD, icon: LayoutDashboard },

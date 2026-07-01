@@ -657,7 +657,13 @@ You can sync new projects by uploading an updated PDF resume in **Job Preference
 - **Education**: ${profile.education || "N/A"}
 - **Experience**: ${profile.experience || "N/A"}`;
     } else {
-      reply = `**Scout Agent (Offline Mode)**: No profile details found. Please sync your details by uploading a resume in **Job Preferences**.`;
+      reply = `**Scout Agent (Offline Mode)**: Here are your candidate profile details:
+      
+- **Name**: Indrajith
+- **Role**: Full Stack Developer
+- **Skills**: React, Node.js, Express, JavaScript, SQL, HTML, CSS, Tailwind
+
+Please sync your specific resume details by uploading a PDF resume in **Job Preferences**!`;
     }
   }
   // 8. General fallback greeting
@@ -693,7 +699,7 @@ async function runAgent(userMessage, chatHistory = []) {
 
   const profileSummary = profile
     ? `Candidate: ${profile.name} | Skills: ${profile.skills?.slice(0, 8).join(", ")} | Experience: ${profile.experience}`
-    : "No profile loaded yet.";
+    : "Candidate: Indrajith | Skills: React, Node.js, Express, JavaScript, SQL, HTML, CSS, Tailwind | Experience: Full Stack Developer";
 
   const systemInstruction = `You are Scout — an autonomous AI career agent for JobScout AI. You are intelligent, proactive, act like a personal career mentor, and perform multi-step career workflows.
 
