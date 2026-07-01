@@ -19,8 +19,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/resume/profile")
+    axios.get(`${import.meta.env.VITE_API_URL}/resume/profile`)
       .then((res) => {
         if (res.data?.success && res.data?.profile) {
           setProfile(res.data.profile);

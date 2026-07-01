@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://localhost:5000/api";
+const BASE = import.meta.env.VITE_API_URL || "https://jobscout-backend-8ytl.onrender.com/api";
 
 export const aiService = {
   /**

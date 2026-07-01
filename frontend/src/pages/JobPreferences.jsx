@@ -66,7 +66,7 @@ export default function JobPreferences() {
       setUploadingResume(true);
       setUploadError(null);
       setUploadSuccess(false);
-      const res = await axios.post("http://localhost:5000/api/resume/upload", formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/resume/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -118,8 +118,8 @@ export default function JobPreferences() {
       try {
         setLoading(true);
         const [prefsRes, profileRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/preferences"),
-          axios.get("http://localhost:5000/api/resume/profile").catch(err => {
+          axios.get(`${import.meta.env.VITE_API_URL}/preferences`),
+          axios.get(`${import.meta.env.VITE_API_URL}/resume/profile`).catch(err => {
             console.warn("No candidate profile found yet or failed to load:", err);
             return { data: { success: false, profile: null } };
           })
@@ -180,7 +180,7 @@ export default function JobPreferences() {
         max_daily_jobs: maxDailyJobs
       };
 
-      const response = await axios.post("http://localhost:5000/api/preferences", payload);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/preferences`, payload);
 
       if (response.data && response.data.success) {
         setSaveStatus("success");
@@ -268,7 +268,7 @@ export default function JobPreferences() {
           preferred_country: preferredCountry
         };
 
-        const response = await axios.post("http://localhost:5000/api/preferences/preview-search-plan", payload);
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/preferences/preview-search-plan`, payload);
         if (active && response.data && response.data.success) {
           setSearchPlan(response.data.searchPlan || []);
         }
